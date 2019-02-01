@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>Examples</title>
+<meta name="description" content="">
+<meta name="keywords" content="">
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<link href="/lib/mescroll/mescroll.min.css" rel="stylesheet">
+<link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<style type="text/css">
+	
+		/*	* {
+				margin: 0;
+				padding: 0;
+				-webkit-touch-callout:none;
+				-webkit-user-select:none;
+				-webkit-tap-highlight-color:transparent;
+			}*/
+			body{background-color: white}
+			ul{list-style-type: none}
+			a {text-decoration: none;color: #18B4FE;}
+			
+			/*给body设置高度; mescroll.min.css的1.2.1版本已默认添加html,body{ height: 100%;}*/
+			html,body{ height: 100%; }
+			/*避免mescroll设置padding的时候出现两个滚动条*/
+			.mescroll{ -webkit-box-sizing: border-box; box-sizing: border-box; }
+			/*模拟的标题*/
+			.header{
+				z-index: 9990;
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 44px;
+				line-height: 44px;
+				text-align: center;
+				border-bottom: 1px solid #eee;
+				background-color: white;
+
+			}
+			.header .btn-left{
+				position: absolute;
+				top: 0;
+				left: 0;
+				padding:12px;
+				line-height: 22px;
+			}
+			.header .btn-right{
+				position: absolute;
+				top: 0;
+				right: 0;
+				padding: 0 12px;
+			}
+
+			.main{
+				margin-top: 60px;
+			}
+
+			.media{
+				padding:0 10px;
+				margin-bottom: 10px;
+				padding-bottom: 9px;
+				border-bottom: 1px dashed #ccc;
+			}
+</style>
+
+<!--标题-->
+		<p class="header">
+			<a class="btn-left" href="/">main</a> 文章列表
+			 <a class="btn-right" href="/scroll">list</a>
+	     </p>
+
+	   <div class="main">
+	 
+
+		<!--滑动区域-->
+		<div id="mescroll" class="mescroll" style="height: 600px;">
+
+			<ul id="newsList" class="news-list">
+			
+
+		<!-- 	 <% data.forEach(function(obj){ %>  
+			  <li>
+
+				<div class="media">
+				    <a class="media-left" href="#">
+
+				        <img class="media-object"  width="100px;"  height="100px;" src="	<%= obj.preview %> "
+				             alt="媒体对象">
+				    </a>
+				    <div class="media-body">
+				        <h4 class="media-heading"><%= obj.title %> </h4>
+				       	<%= obj.summary%> 
+				    </div>
+				</div>
+			  </li>
+			     <% })%> -->
+
+			</ul>
+		</div>
+
+	</div>
+<script type="text/javascript" src="lib/jquery-2.0.3.min.js"></script>
+<script type="text/javascript" src="/lib/mescroll/mescroll.min.js"></script>
+    
+    <script type="text/javascript">
+  
+    	
+			//创建MeScroll对象
+			var mescroll = new MeScroll("mescroll", {
+				down: {
+					auto: true, //是否在初始化完毕之后自动执行下拉回调callback; 默认true
+					callback: downCallback //下拉刷新的回调
+
+				},
+				up: {
+					auto: false, //是否在初始化时以上拉加载的方式自动加载第一页数据; 默认false
+					callback: upCallback, //上拉回调,此处可简写; 相当于 callback: function (page) { upCallback(page); }
+
+					toTop:{ //配置回到顶部按钮
+						src : "/image/totop.png", //默认滚动到1000px显示,可配置offset修改
+						//offset : 1000
+					}
+				}
+			});
+
+
+	     /*下拉刷新的回调 */
+			function downCallback(){
+
+				//联网加载数据
+			   // console.log('down');
+
+			    getData(1, 10, function(data,totalPage){
+			 	    // console.log(data);
+					//联网成功的回调,隐藏下拉刷新的状态
+					mescroll.endSuccess();
+					console.log(data)
+
+					setData(data,false)
+
+				}, function(){
+
+					//联网失败的回调,隐藏下拉刷新的状态
+	                mescroll.endErr();
+
+				});
+
+
+			}
+			
+			/*上拉加载的回调 page = {num:1, size:10}; num:当前页 从1开始, size:每页数据条数 */
+			function upCallback(page){
+			
+				console.log(page);
+
+					getData(page.num, page.size, function(curPageData,totalPage){
+                       
+                       console.log(curPageData);
+
+						console.log(totalPage)
+
+
+					//联网成功的回调,隐藏下拉刷新和上拉加载的状态;
+					//
+					//mescroll会根据传的参数,自动判断列表如果无任何数据,则提示空;列表无下一页数据,则提示无更多数据;
+					
+					console.log("page.num="+page.num+", page.size="+page.size+", curPageData.length="+(parseInt(curPageData.length)+1));
+					//方法一(推荐): 后台接口有返回列表的总页数 totalPage
+				
+					mescroll.endByPage(parseInt(curPageData.length)+1, totalPage); //必传参数(当前页的数据个数, 总页数)
+					
+					//方法二(推荐): 后台接口有返回列表的总数据量 totalSize
+					// mescroll.endBySize(curPageData.length, totalSize); //必传参数(当前页的数据个数, 总数据量)
+					
+					// //方法三(推荐): 您有其他方式知道是否有下一页 hasNext
+					// mescroll.endSuccess(curPageData.length, hasNext); //必传参数(当前页的数据个数, 是否有下一页true/false)
+					
+					// //方法四 (不推荐),会存在一个小问题:比如列表共有20条数据,每页加载10条,共2页.如果只根据当前页的数据个数判断,则需翻到第三页才会知道无更多数据,如果传了hasNext,则翻到第二页即可显示无更多数据.
+					// mescroll.endSuccess(curPageData.length);
+					// 
+				     console.log(curPageData);
+					
+					//设置列表数据
+					setData(curPageData, true);
+				}, function(){
+					//联网失败的回调,隐藏下拉刷新和上拉加载的状态;
+	                mescroll.endErr();
+				});
+
+
+			}
+
+
+
+
+
+			function  getData(pageNum,pageSize,successCallback,errorCallback){
+                  	try{
+                		var newArr=[];
+                		var count;
+                		//下拉刷新重新加载数据
+	                	if(pageNum==1){
+	                		 
+				                let data={ page:pageNum, size:pageSize }
+								 $.post('/getlist',data,function(res){ 
+								 	count=res.count;
+								  if(res.code==200){
+                                          for (var i = 0; i < res.data.length; i++) {
+					                			newArr.push(res.data[i]);
+					                		} 
+								  }
+
+								  	                	//联网成功的回调
+	                	      successCallback&&successCallback(newArr,count);
+
+								});
+
+	                		// newArr.push(newObj);
+	                	}else{
+	                		//此处模拟上拉加载返回的数
+	                	      let data={ page:pageNum, size:pageSize }
+	             
+								 $.post('/getlist',data,function(res){ 
+								 	count=res.count;
+                                     if(res.code==200){
+                        
+											 for (var i = 0; i < res.data.length; i++) {
+					                			newArr.push(res.data[i]);
+					                		} 
+
+								    }
+								   	                	//联网成功的回调
+	                	  successCallback&&successCallback(newArr,count);
+
+
+								});
+	                		
+	                	}
+
+
+                	}catch(e){
+                		//联网失败的回调
+                		errorCallback&&errorCallback();
+                	}
+
+
+			}
+
+
+   	/*设置列表数据*/
+			function setData(data, isAppend) {
+				var listDom=document.getElementById("newsList");
+         
+                 if(!isAppend){
+                 	listDom.innerHTML="";
+                 }
+				for (var i = 0; i < data.length; i++) {
+
+					var obj=data[i];
+					console.log(obj)
+					var str='<div class="media"><a class="media-left" href="#">'
+				     +'<img class="media-object"  width="100px;"  height="100px;" src="'+ obj.preview +'"alt="媒体对象"></a>'
+				     +'<div class="media-body">'
+				     +'<h4 class="media-heading">'+(obj.id)+obj.title +'</h4>'
+				     +obj.summary
+				     +'</div>'
+				     +'</div>';
+					var liDom=document.createElement("li");
+
+					liDom.innerHTML=str;
+					if (isAppend) {
+						listDom.appendChild(liDom);//加在列表的后面,上拉加载
+					} else{
+						listDom.innerHTML+=liDom.innerHTML;//加在列表的前面,下拉刷新
+						// listDom.insertBefore(liDom, listDom.firstChild);//加在列表的前面,下拉刷新
+					}
+				}
+
+			}
+
+		//禁止PC浏览器拖拽图片,避免与下拉刷新冲突;如果仅在移动端使用,可删除此代码
+			document.ondragstart=function() {return false;}
+	
+
+			
+    </script>
+</body>
+</html>

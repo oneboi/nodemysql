@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>小星星</title>
+<meta name="description" content="">
+<meta name="keywords" content="">
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="lib/uploadfive/uploadifive.css">
+
+</head>
+<body>
+ 
+ <div class="header">
+
+
+<nav class="navbar navbar-inverse" role="navigation">
+    <div class="container-fluid">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse"
+                data-target="#example-navbar-collapse">
+            <span class="sr-only">切换导航</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="/">小星星</a>
+    </div>
+    <div class="collapse navbar-collapse" id="example-navbar-collapse">
+        <ul class="nav navbar-nav">
+            <li class="active"><a href="/">首页</a></li>
+            <li><a href="/add">写文章</a></li>
+         <!--    <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                    Java <b class="caret"></b>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a href="#">jmeter</a></li>
+                    <li><a href="#">EJB</a></li>
+                    <li><a href="#">Jasper Report</a></li>
+                    <li class="divider"></li>
+                    <li><a href="#">分离的链接</a></li>
+                    <li class="divider"></li>
+                    <li><a href="#">另一个分离的链接</a></li>
+                </ul>
+            </li> -->
+        </ul>
+    </div>
+    </div>
+</nav>
+ </div>
+
+<form class="form-horizontal" role="form">
+  <div class="form-group">
+    <label for="firstname" class="col-sm-2 control-label">标题</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" id="firstname" name="title" placeholder="请输入名字">
+    </div>
+  </div>
+
+<div class="form-group">
+    <label for="firstname" class="col-sm-2 control-label">简介</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" id="firstname"  name="summary" placeholder="请输入名字">
+    </div>
+  </div>
+
+
+<div class="form-group">
+    <label for="firstname" class="col-sm-2 control-label">分类</label>
+    <div class="col-sm-10">
+     <select class="form-control" name="category">
+      <option selected="selected">文章</option>
+      <option>科技</option>
+      <option>生活</option>
+      <option>时光</option>
+      <option>在线</option>
+    </select>
+
+    </div>
+  </div>
+
+
+<div class="form-group">
+    <label for="firstname" class="col-sm-2 control-label">作者</label>
+    <div class="col-sm-10">
+      <input type="text"  name="auth" class="form-control" id="firstname" placeholder="请输入名字" >
+    </div>
+
+</div>
+
+
+
+
+<div class="form-group">
+    <label for="firstname" class="col-sm-2 control-label">预览图</label>
+    <div class="col-sm-10">
+      <img src="image/upload.jpg"  id="image" class="img-rounded" style="width: 192px; height: 120px" onclick="$('#file').click()">
+       <input type="file" id="file"  name="preview" style="display:none"  onchange="upload()">
+       <input type="hidden" name="preview"  id="preview">
+    </div>
+
+</div>
+
+
+
+<div class="form-group">
+    <label for="firstname" class="col-sm-2 control-label">内容</label>
+    <div class="col-sm-10">
+       <div id="editor" ">
+        </div>
+
+        <input type="hidden" name="content" id="editorcontent">
+
+    </div>
+  </div>
+
+ 
+  <div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+      <button type="button"  id="submit" class="btn btn-default">提交</button>
+    </div>
+  </div>
+</form>
+
+
+<style type="text/css">
+  .w-e-text-container{
+    height: 400px !important;
+  }
+</style>
+ <script type="text/javascript" src="lib/jquery-2.0.3.min.js"></script>
+ <script type="text/javascript" src="lib/bootstrap/js/bootstrap.min.js"></script>
+ <script type="text/javascript" src="lib/editor/wangEditor.min.js"></script>
+ <script type="text/javascript" src="lib/ajaxfileupload.js"></script>
+
+ <script type="text/javascript">
+
+var htmlcontent="";
+      var E = window.wangEditor
+        var editor = new E('#editor')
+        // 或者 var editor = new E( document.getElementById('#editor') )
+        // 
+        editor.customConfig.onchangeTimeout = 1000 // 单位 ms
+      
+      editor.customConfig.uploadImgServer = '/upload'
+      editor.customConfig.uploadFileName = 'preview'
+      // 将图片大小限制为 3M
+      editor.customConfig.uploadImgMaxSize = 3 * 1024 * 1024
+        editor.customConfig.uploadImgHooks = {
+          error: function (xhr, editor) {
+
+          },
+          customInsert: function (insertImg, result, editor) {
+              var url = result.dest
+              insertImg(url)
+             console.log(insertImg);
+             console.log(result);
+             console.log(editor);
+             console.log(555);
+             
+          }
+       }
+
+  editor.customConfig.onchange = function (html) {
+      
+         editor.txt.html(html)
+
+         $('#editorcontent').val(html);
+    }
+
+  // editor.customConfig.onblur = function (html) {
+  //       // html 即编辑器中的内容
+  //       // 
+  //    htmlcontent= editor.txt.text()
+  //    console.log(htmlcontent);
+  //    $('#editorcontent').val(html);
+
+  //   }
+
+
+    editor.create()
+
+
+
+
+
+//上传封面图片
+function upload(){
+  // http://blog.csdn.net/xujie3/article/details/51860139
+  $.ajaxFileUpload({  
+    type: "POST",  
+    url: "/upload",  
+    secureuri : false,//是否启用安全提交，默认为false  
+    fileElementId:'file',//文件选择框的id属性  
+    dataType: 'json',//服务器返回的格式  
+    async : false,  
+    success: function(data,status){ 
+
+
+        if(data.ok&&data.dest){
+        $("#image").attr('src',data.dest);
+          $("#preview").val(data.dest);
+        }
+     
+    },  
+    error: function (data, status, e){  
+      console.log(data);
+       
+    }  
+});
+
+}
+
+
+
+$("#submit").click(function(){
+  
+    
+
+  var formdata=$('form').serialize();
+
+  $.post('/add',formdata,function(data){
+    if(data.code==200){
+
+      location.href="/"
+    }
+  })
+
+})
+
+
+
+
+ </script>
+</body>
+</html>
